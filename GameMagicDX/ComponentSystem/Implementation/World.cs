@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using GameMagic.Components;
@@ -12,6 +14,7 @@ using GameMagic.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using QuakeConsole;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 using Vector4 = Microsoft.Xna.Framework.Vector4;
 
@@ -187,16 +190,24 @@ namespace GameMagic.ComponentSystem.Implementation
             if (GMGame.LevelCounter == 0)
             {
                 batch.Begin();
-                batch.DrawString(GMGame.mainFont, "Right Click to drag the orbs to the sink.", new Vector2(20, 20), Color.White);
-                batch.DrawString(GMGame.mainFont, "R to restart", new Vector2(20, 40), Color.White);
+                batch.DrawString(GMGame.mainFont, "Right Click to drag the goo to the sink.", new Vector2(20, 20), Color.White);
+                batch.DrawString(GMGame.mainFont, "R to restart.", new Vector2(20, 40), Color.White);
+                batch.End();
+            }
+            else if (GMGame.LevelCounter == 1)
+            {
+                batch.Begin();
+                batch.DrawString(GMGame.mainFont, "R to restart.", new Vector2(20, 20), Color.White);
                 batch.End();
             }
             else if (GMGame.LevelCounter == 2)
             {
                 batch.Begin();
-                batch.DrawString(GMGame.mainFont, "Hold control to see available modifier orbs", new Vector2(20, 20), Color.White);
+                batch.DrawString(GMGame.mainFont, "Hold control to see available modifier orbs.", new Vector2(20, 20),
+                    Color.White);
                 batch.DrawString(GMGame.mainFont, "Scroll wheel to select.", new Vector2(20, 40), Color.White);
-                batch.DrawString(GMGame.mainFont, "Left Click to place", new Vector2(20, 60), Color.White);
+                batch.DrawString(GMGame.mainFont, "Left Click to place.", new Vector2(20, 60), Color.White);
+                batch.DrawString(GMGame.mainFont, "T to reset goo", new Vector2(20, 80), Color.White);
                 batch.End();
             }
         }
@@ -286,7 +297,7 @@ namespace GameMagic.ComponentSystem.Implementation
             public List<int> Supplies { get; set; } = new List<int>();
         }
 
-        public void Save()
+        public void Save(string name="")
         {
             LevelData data = new LevelData();
             foreach (KeyValuePair<int, Entity> keyValuePair in entities)
@@ -302,11 +313,22 @@ namespace GameMagic.ComponentSystem.Implementation
 
             string serialised = Newtonsoft.Json.JsonConvert.SerializeObject(data);
 
-            System.IO.File.WriteAllText($@"C:\Users\Public\Level{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss-tt")}.json", serialised);
+            if (String.IsNullOrEmpty(name))
+            {
+                System.IO.File.WriteAllText(
+                    $@"C:\Users\Public\Level{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss-tt")}.json", serialised);
+                
+            }
+            else
+            {
+                System.IO.File.WriteAllText(
+                    $@"{name}.json", serialised);
+
+            }
         }
 
 
-        
+
 
         private int orbCount = 0;
 
@@ -333,10 +355,11 @@ namespace GameMagic.ComponentSystem.Implementation
             }
         }
 
-        public void Load(string path)
+        public void Load(string name)
         {
+
             ClearLevel();
-            string text = System.IO.File.ReadAllText(path);
+            string text = System.IO.File.ReadAllText($"Levels/{name}.json");
 
             LevelData data = Newtonsoft.Json.JsonConvert.DeserializeObject<LevelData>(text);
 
@@ -392,7 +415,7 @@ namespace GameMagic.ComponentSystem.Implementation
 
 
 
-            if (ms.MiddleButton == ButtonState.Released && lastMouse.MiddleButton == ButtonState.Pressed)
+            if (ms.MiddleButton == ButtonState.Released && lastMouse.MiddleButton == ButtonState.Pressed && GMGame.devMode)
             {
                 List<RectColider> cols = CollisionSystem.SearchPoint(ms.X, ms.Y);
 

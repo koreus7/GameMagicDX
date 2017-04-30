@@ -47,11 +47,13 @@ namespace GameMagic.Components
 
             float mouseDistance = Vector2.Distance(Entity.Position, new Vector2(m.X, m.Y));
 
+            bool mouse = false;
 
             Vector2 mouseEffect = new Vector2(0.0f, 0.0f);
 
             if (mouseDistance < 200 && m.RightButton == ButtonState.Pressed)
             {
+                mouse = true;
                 Vector2 delta = new Vector2(m.X - Entity.Position.X, m.Y - Entity.Position.Y);
                 float mod = Math.Min(delta.LengthSquared(), 100.0f) / 100.0f;
                 mouseEffect = delta.Normalized() * 24.0f * mod;
@@ -115,10 +117,10 @@ namespace GameMagic.Components
                 {
                     Vector2 delta = colider.Entity.Position - Entity.Position;
 
-                    if (delta.LengthSquared() < 80000.0f)
+                    if (delta.LengthSquared() < 81000.0f)
                     {
                         float mod = Math.Min(delta.LengthSquared(), 200.0f)/200.0f;
-                        dir += delta.Normalized()*28.0f*mod;
+                        dir += delta.Normalized()*30.0f*mod;
                     }
                     if (delta.LengthSquared() < 10.0f)
                     {
@@ -137,6 +139,13 @@ namespace GameMagic.Components
 
                         dir += tangent * 30.0f;
                     }
+                    else if (delta.LengthSquared() < 59600 && !mouse)
+                    {
+                        float mod = Math.Min(delta.LengthSquared() - 57600, 200.0f) / 200.0f;
+                        dir += delta.Normalized() * 28.0f *mod;
+                    }
+
+
                 }
                 else if (colider.Entity is ReversePlanet)
                 {
@@ -148,6 +157,11 @@ namespace GameMagic.Components
                         Vector2 tangent = new Vector2(-normal.Y, normal.X);
 
                         dir -= tangent * 30.0f;
+                    }
+                    else if (delta.LengthSquared() < 59600 && !mouse)
+                    {
+                        float mod = Math.Min(delta.LengthSquared() - 57600, 200.0f) / 200.0f;
+                        dir += delta.Normalized() * 28.0f * mod;
                     }
                 }
                 else if (colider.Entity is Goo)

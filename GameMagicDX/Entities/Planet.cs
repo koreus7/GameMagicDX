@@ -23,7 +23,7 @@ namespace GameMagic.Entities
             sr.tex = StaticImg.sprite1024;
             var r = this.AddNewComponent<RectColider>();
             r.WatchCollisions = true;
-            r.rect = new Rectangle(0, 0, 400, 400);
+            r.rect = new Rectangle(0, 0, 450, 450);
         }
     }
 }
