@@ -316,13 +316,12 @@ namespace GameMagic.ComponentSystem.Implementation
             if (String.IsNullOrEmpty(name))
             {
                 System.IO.File.WriteAllText(
-                    $@"C:\Users\Public\Level{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss-tt")}.json", serialised);
-                
+                    $@"Levels\Level{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss-tt")}.json", serialised);
             }
             else
             {
                 System.IO.File.WriteAllText(
-                    $@"{name}.json", serialised);
+                    $@"Levels\{name}.json", serialised);
 
             }
         }
